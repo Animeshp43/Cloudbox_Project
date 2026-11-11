@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudBox | Cloud Storage</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+    --bg: #0b1020;
+    --panel: #111a2e;
+    --panel2: #17233b;
+    --border: rgba(255,255,255,.08);
+    --text: #f1f5ff;
+    --muted: #8b9ab5;
+    --accent: #8b7cff;
+    --cyan: #46d9d0;
+    --green: #4adea2;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+}
+
+button, input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    background: #0e1729;
+    border-right: 1px solid var(--border);
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    margin-bottom: 42px;
+    font: 700 24px 'Space Grotesk', sans-serif;
+}
+
+.logo-icon {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#8b7cff,#46d9d0);
+    color: #08101d;
+    font-size: 23px;
+}
+
+.section-label {
+    color: #71809c;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    padding: 0 12px;
+    margin-bottom: 13px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    text-align: left;
+    padding: 13px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.nav button:hover,
+.nav button.active {
+    background: rgba(139,124,255,.15);
+    color: #b9afff;
+}
+
+.nav button span {
+    display: inline-block;
+    width: 28px;
+}
+
+.storage {
+    margin-top: auto;
+    padding: 19px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--panel);
+}
+
+.storage h4 {
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.storage p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 7px;
+    background: #293650;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress div {
+    width: 42%;
+    height: 100%;
+    background: linear-gradient(90deg,var(--accent),var(--cyan));
+    border-radius: 20px;
+}
+
+/* MAIN CONTENT */
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 38px;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 38px;
+}
+
+.search {
+    width: min(420px, 55%);
+    position: relative;
+}
+
+.search input {
+    width: 100%;
+    padding: 13px 16px 13px 43px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: white;
+    outline: none;
+}
+
+.search input:focus {
+    border-color: var(--accent);
+}
+
+.search span {
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    color: var(--muted);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.avatar {
+    width: 37px;
+    height: 37px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg,#8b7cff,#46d9d0);
+    color: #091020;
+    font-weight: 700;
+}
+
+.heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 27px;
+}
+
+.heading h1 {
+    font: 700 30px 'Space Grotesk',sans-serif;
+}
+
+.heading p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.upload-btn {
+    border: 0;
+    background: linear-gradient(110deg,#8b7cff,#6e9cff);
+    color: white;
+    padding: 13px 20px;
+    border-radius: 11px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139,124,255,.25);
+}
+
+/* SUMMARY CARDS */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.card {
+    padding: 22px;
+    background: linear-gradient(145deg,var(--panel),#121e34);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.card-icon {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    background: rgba(139,124,255,.15);
+    border-radius: 11px;
+    font-size: 19px;
+}
+
+.card h2 {
+    font: 700 27px 'Space Grotesk',sans-serif;
+    margin-top: 19px;
+}
+
+.card small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* FILE AREA */
+
+.files-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    overflow: hidden;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px;
+}
+
+.panel-heading h2 {
+    font: 600 19px 'Space Grotesk',sans-serif;
+}
+
+.panel-heading button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+thead {
+    background: rgba(255,255,255,.025);
+}
+
+th {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: .8px;
+    font-weight: 600;
+    padding: 14px 22px;
+}
+
+td {
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+}
+
+tbody tr:hover {
+    background: rgba(255,255,255,.025);
+}
+
+.file-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.file-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--panel2);
+    font-size: 17px;
+}
+
+.file-type {
+    color: var(--muted);
+}
+
+.status {
+    color: var(--green);
+    background: rgba(74,222,162,.09);
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 35px;
+}
+
+.footer {
+    text-align: center;
+    color: #64728b;
+    font-size: 11px;
+    padding: 25px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:850px) {
+    .sidebar {
+        width: 190px;
+    }
+
+    .main {
+        padding: 24px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width:600px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        padding: 19px;
+    }
+
+    .heading h1 {
+        font-size: 23px;
+    }
+
+    .heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .profile .user-name {
+        display: none;
+    }
+
+    .files-panel {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 650px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">☁</div>
+            CloudBox
+        </div>
+
+        <div class="section-label">WORKSPACE</div>
+
+        <nav class="nav">
+            <button class="active" onclick="showSection('My Files',this)">
+                <span>▦</span> My Files
+            </button>
+
+            <button onclick="showSection('Recent Files',this)">
+                <span>◷</span> Recent
+            </button>
+
+            <button onclick="showSection('Starred Files',this)">
+                <span>☆</span> Starred
+            </button>
+
+            <button onclick="showSection('Trash',this)">
+                <span>♲</span> Trash
+            </button>
+        </nav>
+
+        <div class="storage">
+            <h4>☁ Storage Overview</h4>
+            <div class="progress"><div></div></div>
+            <p>4.2 GB of 10 GB used</p>
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="search">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search your files..."
+                    oninput="searchFiles()">
+            </div>
+
+            <div class="profile">
+                <div class="avatar">C</div>
+                <span class="user-name">CloudBox User</span>
+            </div>
+
+        </header>
+
+        <section class="heading">
+
+            <div>
+                <h1 id="pageTitle">My Files</h1>
+                <p>Welcome back! Manage your cloud files in one place.</p>
+            </div>
+
+            <div>
+                <button class="upload-btn" onclick="chooseFiles()">
+                    + Upload Files
+                </button>
+                <input
+                    type="file"
+                    id="fileInput"
+                    multiple
+                    hidden
+                    onchange="previewFiles(this.files)">
+            </div>
+
+        </section>
+
+        <section class="cards">
+
+            <div class="card">
+                <div class="card-top">
+                    Total Files
+                    <div class="card-icon">▤</div>
+                </div>
+                <h2 id="totalFiles">06</h2>
+                <small>Files shown in this demo</small>
+            </div>
+
+            <div class="card">
+                <div class="card-top">
+                    Storage Used
+                    <div class="card-icon">◉</div>
+                </div>
+                <h2>4.2 GB</h2>
+                <small>Of 10 GB available</small>
+            </div>
+
+            <div class="card">
+                <div class="card-top">
+                    Shared Files
+                    <div class="card-icon">♧</div>
+                </div>
+                <h2>03</h2>
+                <small>Sample dashboard statistic</small>
+            </div>
+
+        </section>
+
+        <section class="files-panel">
+
+            <div class="panel-heading">
+                <h2 id="tableTitle">All Files</h2>
+                <button onclick="resetFiles()">Refresh view ↻</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>TYPE</th>
+                        <th>SIZE</th>
+                        <th>MODIFIED</th>
+                        <th>STATUS</th>
+			<th>ACTION</th>
+                    </tr>
+                </thead>
+
+                <tbody id="fileList">
+			<!-- Files will be loaded dynamically from the PHP API -->
+                </tbody>
+            </table>
+
+            <div id="emptyMessage" class="empty" hidden>
+                No matching files found.
+            </div>
+
+        </section>
+
+        <div class="footer">
+            CloudBox © 2026 · Your files, your cloud.
+        </div>
+
+    </main>
+</div>
+
+<script>
+
+// Open file selector
+function chooseFiles() {
+    document.getElementById('fileInput').click();
+}
+
+// Format file size
+function formatSize(bytes) {
+    if (!bytes) return '0 Bytes';
+
+    const units = ['Bytes', 'KB', 'MB', 'GB'];
+    const index = Math.floor(Math.log(bytes) / Math.log(1024));
+
+    return (bytes / Math.pow(1024, index)).toFixed(2)
+        + ' ' + units[index];
+}
+
+// Get file icon
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+
+    const icons = {
+        pdf: '📕',
+        jpg: '🖼️',
+        jpeg: '🖼️',
+        png: '🖼️',
+        gif: '🖼️',
+        txt: '📄',
+        doc: '📘',
+        docx: '📘',
+        xls: '📗',
+        xlsx: '📗',
+        ppt: '📊',
+        pptx: '📊',
+        zip: '📦',
+        rar: '📦',
+        mp3: '🎵',
+        mp4: '🎬'
+    };
+
+    return icons[ext] || '📄';
+}
+
+// Escape HTML to safely display filenames
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    })[character]);
+}
+
+// Load files from PHP and MySQL
+async function loadFiles() {
+    const fileList = document.getElementById('fileList');
+    const emptyMessage = document.getElementById('emptyMessage');
+
+    fileList.innerHTML =
+        '<tr><td colspan="6">Loading files...</td></tr>';
+
+    try {
+        const response = await fetch('/api');
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Unable to load files');
+        }
+
+        fileList.innerHTML = '';
+
+        if (data.files.length === 0) {
+            emptyMessage.hidden = false;
+            return;
+        }
+
+        data.files.forEach(file => {
+            const row = document.createElement('tr');
+
+            row.dataset.name = file.filename;
+
+            const date = new Date(
+                file.uploaded_at.replace(' ', 'T') + 'Z'
+            ).toLocaleString();
+
+            row.innerHTML = `
+                <td>
+                    <div class="file-name">
+                        <div class="file-icon">
+                            ${getFileIcon(file.filename)}
+                        </div>
+                        ${escapeHTML(file.filename)}
+                    </div>
+                </td>
+
+                <td class="file-type">
+                    ${escapeHTML(file.file_type || 'Unknown')}
+                </td>
+
+                <td>${formatSize(Number(file.file_size))}</td>
+
+                <td>${escapeHTML(date)}</td>
+
+                <td><span class="status">Available</span></td>
+
+                <td>
+                    <button type="button"
+                        class="delete-btn"
+                        data-id="${Number(file.id)}">
+                        Delete
+                    </button>
+                </td>
+            `;
+
+            fileList.appendChild(row);
+        });
+
+        searchFiles();
+
+    } catch (error) {
+        fileList.innerHTML = `
+            <tr>
+                <td colspan="6">${escapeHTML(error.message)}</td>
+            </tr>
+        `;
+
+        emptyMessage.hidden = true;
+    }
+}
+
+// Search files
+function searchFiles() {
+    const query = document.getElementById('searchInput')
+        .value.toLowerCase();
+
+    const rows = document.querySelectorAll('#fileList tr');
+    let visible = 0;
+
+    rows.forEach(row => {
+        const name = (row.dataset.name || '').toLowerCase();
+        const matches = name.includes(query);
+
+        row.style.display = matches ? '' : 'none';
+
+        if (matches) visible++;
+    });
+
+    document.getElementById('emptyMessage').hidden = visible !== 0;
+}
+
+// Navigation
+function showSection(title, button) {
+    document.getElementById('pageTitle').textContent = title;
+    document.getElementById('tableTitle').textContent = title;
+
+    document.querySelectorAll('.nav button').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    button.classList.add('active');
+}
+
+// Upload files through PHP API
+async function previewFiles(files) {
+    if (!files.length) return;
+
+    let successful = 0;
+    let failed = 0;
+
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Upload failed');
+            }
+
+            successful++;
+
+        } catch (error) {
+            failed++;
+            alert(file.name + ': ' + error.message);
+        }
+    }
+
+    document.getElementById('fileInput').value = '';
+
+    await loadFiles();
+
+    alert(
+        'Upload completed!\n' +
+        'Successful: ' + successful +
+        '\nFailed: ' + failed
+    );
+}
+
+// Delete file from storage and MySQL
+async function deleteFile(id) {
+    if (!confirm('Are you sure you want to delete this file?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            '/api?id=' + encodeURIComponent(id),
+            { method: 'DELETE' }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Delete failed');
+        }
+
+        await loadFiles();
+
+        alert('File deleted successfully!');
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// Handle delete button clicks
+document.getElementById('fileList').addEventListener('click', event => {
+    const button = event.target.closest('.delete-btn');
+
+    if (button) {
+        deleteFile(button.dataset.id);
+    }
+});
+
+// Refresh dashboard
+function resetFiles() {
+    document.getElementById('searchInput').value = '';
+    loadFiles();
+}
+
+// Load files when page opens
+loadFiles();
+
+
+</script>
+
+</body>
+</html>
+
