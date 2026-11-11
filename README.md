@@ -23,6 +23,9 @@ The application separates the frontend, backend, and database into individual co
 - **Custom Docker Network:** Enable communication between application containers.
 - **Nginx Web Server:** Serve the frontend and forward API requests to PHP-FPM.
 
+Website
+<img width="960" height="512" alt="cloudbox browser" src="https://github.com/user-attachments/assets/25a68ac2-e158-4872-8f67-b10cbedf0bc3" />
+
 ## 🏗️ System Architecture
 
 ```text
