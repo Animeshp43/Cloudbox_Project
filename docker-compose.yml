@@ -1,0 +1,73 @@
+
+services:
+
+  nginx:
+    image: cloudbox-nginx:1.0
+    build:
+      context: ./nginx
+    container_name: cloudbox-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - php
+      - filebrowser
+    networks:
+      - cloudbox-network
+    restart: unless-stopped
+
+  php:
+    image: cloudbox-php:1.0
+    build:
+      context: ./api
+    container_name: cloudbox-php
+    environment:
+      DB_HOST: mysql
+      DB_NAME: cloudbox
+      DB_USER: cloudbox_user
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - uploads_data:/srv
+    depends_on:
+      - mysql
+    networks:
+      - cloudbox-network
+    restart: unless-stopped
+
+  filebrowser:
+    image: cloudbox-filebrowser:1.0
+    build:
+      context: ./filebrowser
+    container_name: cloudbox-filebrowser
+    volumes:
+      - uploads_data:/srv
+      - filebrowser_database:/database
+      - filebrowser_config:/config
+    networks:
+      - cloudbox-network
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.4
+    container_name: cloudbox-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./api/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - cloudbox-network
+    restart: unless-stopped
+
+volumes:
+  uploads_data:
+  filebrowser_database:
+  filebrowser_config:
+  mysql_data:
+
+networks:
+  cloudbox-network:
+    driver: bridge
+
