@@ -86,5 +86,4 @@ This is a learning project and does not currently implement user authentication.
 
 ## Author
 
-Animesh
-
+Animesh Pradhan
